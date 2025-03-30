@@ -1,47 +1,162 @@
 import { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./app.css";
+
+import UserService from "./services/UserService";
+import ProjectService, { Project } from "./services/ProjectService";
+import StoryService, { Story } from "./services/StoryService";
+
 import ProjectForm from "./components/ProjectForm";
 import ProjectList from "./components/ProjectList";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import ProjectService, { Project } from "./services/projectService";
+import StoryForm from "./components/StoryForm";
+import StoryList from "./components/StoryList";
 
-const App: React.FC = () => {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [projectToEdit, setProjectToEdit] = useState<Project | undefined>(undefined);
+const App = () => {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectToEdit, setProjectToEdit] = useState<Project | undefined>();
+  const [currentProject, setCurrentProject] = useState<Project | null>(null);
 
-    useEffect(() => {
-        setProjects(ProjectService.getProjects());
-    }, []);
+  const [stories, setStories] = useState<Story[]>([]);
+  const [storyToEdit, setStoryToEdit] = useState<Story | undefined>();
 
-    const refreshProjects = () => {
-        setProjects(ProjectService.getProjects());
-    };
+  useEffect(() => {
+    refreshProjects();
+  }, []);
 
-    const handleEditProject = (project: Project) => {
-        setProjectToEdit(project);
-    };
+  useEffect(() => {
+    if (currentProject) {
+      refreshStories();
+    } else {
+      setStories([]);
+    }
+  }, [currentProject]);
 
-    // Funkcja do resetowania stanu edycji
-    const resetEdit = () => {
-        setProjectToEdit(undefined);
-    };
+  const refreshProjects = () => {
+    setProjects(ProjectService.getProjects());
+  };
 
-    return (
-        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-            <div className="p-4 border rounded shadow" style={{ maxWidth: '600px', width: '100%' }}>
-                <h1 className="text-center mb-4">ManagMe - Projekty</h1>
-                <ProjectForm 
-                    onProjectAdded={refreshProjects} 
-                    projectToEdit={projectToEdit} 
-                    resetEdit={resetEdit} // Przekazujemy funkcję resetującą stan edycji
-                />
-                <ProjectList
-                    projects={projects}
-                    onProjectDeleted={refreshProjects}
-                    onProjectEdited={handleEditProject}
-                />
-            </div>
+  const refreshStories = () => {
+    if (currentProject) {
+      setStories(StoryService.getStories(currentProject.id));
+    }
+  };
+
+  const resetProjectEdit = () => {
+    setProjectToEdit(undefined);
+  };
+
+  const handleProjectEdited = (p: Project) => {
+    setProjectToEdit(p);
+  };
+
+  const handleProjectSelected = (p: Project) => {
+    setCurrentProject(p);
+  };
+
+  const resetStoryEdit = () => {
+    setStoryToEdit(undefined);
+  };
+
+  const handleStoryEdit = (s: Story) => {
+    setStoryToEdit(s);
+  };
+
+  const handleStorySaved = (
+    s: Omit<Story, "id" | "createdAt" | "ownerId"> & { id?: number }
+  ) => {
+    if (!currentProject) return;
+    if (s.id) {
+      StoryService.updateStory(currentProject.id, {
+        id: s.id,
+        name: s.name,
+        description: s.description,
+        priority: s.priority,
+        status: s.status,
+        projectId: currentProject.id,
+        createdAt: new Date().toISOString(),
+        ownerId: UserService.getCurrentUser().id
+      });
+    } else {
+      StoryService.addStory(currentProject.id, {
+        name: s.name,
+        description: s.description,
+        priority: s.priority,
+        status: s.status,
+        projectId: currentProject.id
+      });
+    }
+    refreshStories();
+    resetStoryEdit();
+  };
+
+  const handleStoryDelete = (id: number) => {
+    if (!currentProject) return;
+    StoryService.deleteStory(currentProject.id, id);
+    refreshStories();
+  };
+
+  const handleStatusChange = (
+    story: Story,
+    newStatus: "todo" | "doing" | "done"
+  ) => {
+    if (!currentProject) return;
+    const updated = { ...story, status: newStatus };
+    StoryService.updateStory(currentProject.id, updated);
+    refreshStories();
+  };
+
+  return (
+    <div className="container py-4" style={{ maxWidth: "900px" }}>
+      <div className="text-center">
+        <h1 className="mb-4">
+          {UserService.getCurrentUser().firstName} {UserService.getCurrentUser().lastName}
+        </h1>
+      </div>
+
+      <div className="card mb-4">
+        <div className="card-body">
+          <ProjectForm
+            onProjectAdded={refreshProjects}
+            projectToEdit={projectToEdit}
+            resetEdit={resetProjectEdit}
+          />
+          <ProjectList
+            projects={projects}
+            onProjectDeleted={refreshProjects}
+            onProjectEdited={handleProjectEdited}
+            onProjectSelected={handleProjectSelected}
+          />
         </div>
-    );
+      </div>
+
+      {currentProject && (
+        <div className="card">
+          <div className="card-body">
+            <h4 className="card-title mb-3">Aktywny Projekt: {currentProject.name}</h4>
+            <button
+              className="btn btn-outline-secondary mb-3"
+              onClick={() => setCurrentProject(null)}
+            >
+              Odmapuj Projekt
+            </button>
+
+            <StoryForm
+              storyToEdit={storyToEdit}
+              onStorySaved={handleStorySaved}
+              resetEdit={resetStoryEdit}
+              projectId={currentProject.id}
+            />
+            <StoryList
+              stories={stories}
+              onEdit={handleStoryEdit}
+              onDelete={handleStoryDelete}
+              onStatusChange={handleStatusChange}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default App;

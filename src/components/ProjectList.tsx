@@ -1,39 +1,56 @@
-import ProjectService, { Project } from "../services/projectService";
+import ProjectService, { Project } from "../services/ProjectService";
 
-interface ProjectListProps {
-    projects: Project[];
-    onProjectDeleted: () => void;
-    onProjectEdited: (project: Project) => void; // Funkcja do edycji
+interface Props {
+  projects: Project[];
+  onProjectDeleted: () => void;
+  onProjectEdited: (p: Project) => void;
+  onProjectSelected: (p: Project) => void;
 }
 
-const ProjectList: React.FC<ProjectListProps> = ({ projects, onProjectDeleted, onProjectEdited }) => {
-    return (
-        <ul className="list-group mt-4">
-            {projects.map((project) => (
-                <li key={project.id} className="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>{project.name}</strong>
-                        <p>{project.description}</p>
-                    </div>
-                    <button
-                        onClick={() => {
-                            ProjectService.deleteProject(project.id);
-                            onProjectDeleted();
-                        }}
-                        className="btn btn-danger btn-sm"
-                    >
-                        Usuń
-                    </button>
-                    <button
-                        onClick={() => onProjectEdited(project)} // Wywołanie edycji
-                        className="btn btn-warning btn-sm ms-2"
-                    >
-                        Edytuj
-                    </button>
-                </li>
-            ))}
-        </ul>
-    );
+const ProjectList: React.FC<Props> = ({
+  projects,
+  onProjectDeleted,
+  onProjectEdited,
+  onProjectSelected
+}) => {
+  return (
+    <ul className="list-group">
+      {projects.map(p => (
+        <li
+          key={p.id}
+          className="list-group-item d-flex justify-content-between align-items-center"
+        >
+          <div className="text-start">
+            <h6 className="mb-1">{p.name}</h6>
+            <small className="text-muted">{p.description}</small>
+          </div>
+          <div className="btn-group" role="group">
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => onProjectSelected(p)}
+            >
+              Wybierz
+            </button>
+            <button
+              className="btn btn-sm btn-warning"
+              onClick={() => onProjectEdited(p)}
+            >
+              Edytuj
+            </button>
+            <button
+              className="btn btn-sm btn-danger"
+              onClick={() => {
+                ProjectService.deleteProject(p.id);
+                onProjectDeleted();
+              }}
+            >
+              Usuń
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 };
 
 export default ProjectList;
