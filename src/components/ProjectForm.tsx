@@ -2,38 +2,26 @@ import { useState, useEffect } from "react";
 import ProjectService, { Project } from "../services/ProjectService";
 
 interface Props {
-  onProjectAdded: () => void;
+  onProjectAdded: (project: Project) => Promise<void>;
   projectToEdit?: Project;
   resetEdit: () => void;
 }
 
 const ProjectForm: React.FC<Props> = ({ onProjectAdded, projectToEdit, resetEdit }) => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [name, setName] = useState(projectToEdit?.name || "");
+  const [description, setDescription] = useState(projectToEdit?.description || "");
 
   useEffect(() => {
-    if (projectToEdit) {
-      setName(projectToEdit.name);
-      setDescription(projectToEdit.description);
-    } else {
-      setName("");
-      setDescription("");
-    }
+    setName(projectToEdit?.name || "");
+    setDescription(projectToEdit?.description || "");
   }, [projectToEdit]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-
-    if (projectToEdit) {
-      ProjectService.updateProject({ ...projectToEdit, name, description });
-    } else {
-      ProjectService.addProject({ name, description });
-    }
-
+    await onProjectAdded({ name, description });
     setName("");
     setDescription("");
-    onProjectAdded();
     resetEdit();
   };
 
@@ -48,6 +36,7 @@ const ProjectForm: React.FC<Props> = ({ onProjectAdded, projectToEdit, resetEdit
             className="form-control"
             value={name}
             onChange={e => setName(e.target.value)}
+            placeholder="Nazwa projektu"
           />
         </div>
         <div className="mb-3">
@@ -57,11 +46,17 @@ const ProjectForm: React.FC<Props> = ({ onProjectAdded, projectToEdit, resetEdit
             className="form-control"
             value={description}
             onChange={e => setDescription(e.target.value)}
+            placeholder="Opis"
           />
         </div>
-        <button type="submit" className="btn btn-primary w-100">
-          {projectToEdit ? "Zapisz" : "Dodaj"}
+        <button type="submit" className="btn btn-success">
+          {projectToEdit ? "Zapisz zmiany" : "Dodaj Projekt"}
         </button>
+        {projectToEdit && (
+          <button type="button" className="btn btn-secondary ms-2" onClick={resetEdit}>
+            Anuluj
+          </button>
+        )}
       </form>
     </div>
   );

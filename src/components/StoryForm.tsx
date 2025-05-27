@@ -3,9 +3,9 @@ import { Story } from "../services/StoryService";
 
 interface Props {
   storyToEdit?: Story;
-  onStorySaved: (s: Omit<Story, "id" | "createdAt" | "ownerId"> & { id?: number }) => void;
+  onStorySaved: (s: Omit<Story, "id" | "createdAt" | "ownerId"> & { id?: string }) => void;
   resetEdit: () => void;
-  projectId: number;
+  projectId: string;
 }
 
 const StoryForm: React.FC<Props> = ({ storyToEdit, onStorySaved, resetEdit, projectId }) => {
@@ -54,14 +54,17 @@ const StoryForm: React.FC<Props> = ({ storyToEdit, onStorySaved, resetEdit, proj
             className="form-control"
             value={name}
             onChange={e => setName(e.target.value)}
+            placeholder="Nazwa historyjki"
           />
         </div>
         <div className="mb-3">
           <label className="form-label">Opis</label>
-          <textarea
+          <input
+            type="text"
             className="form-control"
             value={description}
             onChange={e => setDescription(e.target.value)}
+            placeholder="Opis"
           />
         </div>
         <div className="mb-3">
@@ -88,9 +91,14 @@ const StoryForm: React.FC<Props> = ({ storyToEdit, onStorySaved, resetEdit, proj
             <option value="done">Done</option>
           </select>
         </div>
-        <button type="submit" className="btn btn-success w-100">
-          {storyToEdit ? "Zapisz" : "Dodaj"}
+        <button type="submit" className="btn btn-success">
+          {storyToEdit ? "Zapisz zmiany" : "Dodaj Historyjkę"}
         </button>
+        {storyToEdit && (
+          <button type="button" className="btn btn-secondary ms-2" onClick={resetEdit}>
+            Anuluj
+          </button>
+        )}
       </form>
     </div>
   );

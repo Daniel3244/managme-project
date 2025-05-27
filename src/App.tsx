@@ -15,24 +15,19 @@ import LoginForm from "./components/LoginForm";
 
 const App = () => {
   const [darkMode, setDarkMode] = useState(false);
-
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectToEdit, setProjectToEdit] = useState<Project | undefined>();
   const [currentProject, setCurrentProject] = useState<Project | null>(null);
-
   const [stories, setStories] = useState<Story[]>([]);
   const [storyToEdit, setStoryToEdit] = useState<Story | undefined>();
-
   const [token, setToken] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  // Dark mode body class
   useEffect(() => {
     document.body.classList.toggle("bg-dark", darkMode);
     document.body.classList.toggle("text-light", darkMode);
   }, [darkMode]);
 
-  // Fetch current user
   useEffect(() => {
     if (!token) return;
     fetch("http://localhost:4000/api/me", {
@@ -49,70 +44,71 @@ const App = () => {
       });
   }, [token]);
 
-  // Initial load projects
   useEffect(() => {
-    setProjects(ProjectService.getProjects());
-  }, []);
+    ProjectService.getProjects().then(setProjects)
+  }, [])
 
-  // Load stories on project change
   useEffect(() => {
     if (currentProject) {
-      setStories(StoryService.getStories(currentProject.id));
+      StoryService.getStories(currentProject.id).then(setStories)
     } else {
-      setStories([]);
+      setStories([])
     }
-  }, [currentProject]);
+  }, [currentProject])
 
-  // Handlers
-  const refreshProjects = () => setProjects(ProjectService.getProjects());
-  const refreshStories = () => currentProject && setStories(StoryService.getStories(currentProject.id));
+  const refreshProjects = () => ProjectService.getProjects().then(setProjects)
+  const refreshStories = () => currentProject && StoryService.getStories(currentProject.id).then(setStories)
   const resetProjectEdit = () => setProjectToEdit(undefined);
   const handleProjectEdited = (p: Project) => setProjectToEdit(p);
   const handleProjectSelected = (p: Project) => setCurrentProject(p);
   const resetStoryEdit = () => setStoryToEdit(undefined);
   const handleStoryEdit = (s: Story) => setStoryToEdit(s);
 
-  const handleStorySaved = (
-    s: Omit<Story, "id" | "createdAt" | "ownerId"> & { id?: number }
+  const handleStorySaved = async (
+    s: Omit<Story, "id" | "createdAt" | "ownerId"> & { id?: string; createdAt?: string; ownerId?: string }
   ) => {
     if (!currentProject) return;
     if (s.id) {
-      StoryService.updateStory(currentProject.id, {
+      await StoryService.updateStory(currentProject.id, {
+        ...s,
         id: s.id,
-        name: s.name,
-        description: s.description,
-        priority: s.priority,
-        status: s.status,
         projectId: currentProject.id,
-        createdAt: new Date().toISOString(),
-        ownerId: UserService.getCurrentUser().id
+        createdAt: s.createdAt,
+        ownerId: s.ownerId || currentUser.id
       });
     } else {
-      StoryService.addStory(currentProject.id, {
-        name: s.name,
-        description: s.description,
-        priority: s.priority,
-        status: s.status,
-        projectId: currentProject.id
+      await StoryService.addStory(currentProject.id, {
+        ...s,
+        projectId: currentProject.id,
+        createdAt: new Date().toISOString(),
+        ownerId: currentUser.id
       });
     }
     refreshStories();
     resetStoryEdit();
   };
 
-  const handleStoryDelete = (id: number) => {
+  const handleStoryDelete = async (id: string) => {
     if (!currentProject) return;
-    StoryService.deleteStory(currentProject.id, id);
+    await StoryService.deleteStory(currentProject.id, id);
     refreshStories();
   };
 
-  const handleStatusChange = (story: Story, newStatus: "todo" | "doing" | "done") => {
+  const handleStatusChange = async (story: Story, newStatus: "todo" | "doing" | "done") => {
     if (!currentProject) return;
-    StoryService.updateStory(currentProject.id, { ...story, status: newStatus });
+    await StoryService.updateStory(currentProject.id, {
+      ...story,
+      status: newStatus
+    });
     refreshStories();
   };
 
-  // If not logged in, show login form (with dark-mode toggle)
+  const handleProjectSaved = async (project: Omit<Project, "id">) => {
+    await ProjectService.addProject(project)
+    refreshProjects()
+    resetProjectEdit()
+  }
+
   if (!token) {
     return (
       <div className="d-flex flex-column justify-content-center align-items-center vh-100">
@@ -121,12 +117,10 @@ const App = () => {
     );
   }
 
-  // If token but still loading user
   if (!currentUser) {
     return <div className="text-center mt-5">Ładowanie danych użytkownika...</div>;
   }
 
-  // Main app
   return (
     <div
       className={`app-container container py-4 ${
@@ -135,20 +129,30 @@ const App = () => {
       style={{ maxWidth: "900px" }}
     >
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1>
-          {currentUser.firstName} {currentUser.lastName}
-        </h1>
+        <div className="d-flex align-items-center">
+          <div className="user-avatar">
+            {currentUser.firstName[0]}{currentUser.lastName[0]}
+          </div>
+          <h1 className="mb-0" style={{ fontSize: "2rem", fontWeight: 700 }}>
+            {currentUser.firstName} {currentUser.lastName}
+          </h1>
+        </div>
         <button
           className={`btn btn-sm btn-${darkMode ? "light" : "dark"}`}
+          style={{ minWidth: 90, fontWeight: 600 }}
           onClick={() => setDarkMode(!darkMode)}
         >
-          {darkMode ? "🌞 Jasny" : "🌙 Ciemny"}
+          {darkMode ? <span role="img" aria-label="jasny">🌞 Jasny</span> : <span role="img" aria-label="ciemny">🌙 Ciemny</span>}
         </button>
       </div>
 
       <div className="card mb-4">
         <div className="card-body">
-          <ProjectForm onProjectAdded={refreshProjects} projectToEdit={projectToEdit} resetEdit={resetProjectEdit} />
+          <ProjectForm
+            onProjectAdded={handleProjectSaved}
+            projectToEdit={projectToEdit}
+            resetEdit={resetProjectEdit}
+          />
           <ProjectList
             projects={projects}
             onProjectDeleted={refreshProjects}
@@ -176,6 +180,7 @@ const App = () => {
               onEdit={handleStoryEdit}
               onDelete={handleStoryDelete}
               onStatusChange={handleStatusChange}
+              currentUser={currentUser}
             />
           </div>
         </div>

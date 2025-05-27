@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Story } from "../services/StoryService";
-import UserService from "../services/UserService";
 
 interface Props {
   stories: Story[];
   onEdit: (s: Story) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
   onStatusChange: (s: Story, newStatus: "todo" | "doing" | "done") => void;
+  currentUser: { id: string; firstName: string; lastName: string };
 }
 
-const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange }) => {
+const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange, currentUser }) => {
   const [filter, setFilter] = useState<"all" | "todo" | "doing" | "done">("all");
   const filteredStories =
     filter === "all" ? stories : stories.filter(s => s.status === filter);
@@ -18,7 +18,6 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange 
     if (s.status === "doing") return ["done"];
     return [];
   };
-  const currentUser = UserService.getCurrentUser();
 
   return (
     <div>
@@ -48,34 +47,25 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange 
                 Priorytet: <strong>{s.priority}</strong> | Status: <strong className="text-uppercase">{s.status}</strong>
               </div>
               <div className="small text-muted">
-                Utworzono: {new Date(s.createdAt).toLocaleString()} | Właściciel:{" "}
-                {s.ownerId === currentUser.id
-                  ? `${currentUser.firstName} ${currentUser.lastName}`
-                  : s.ownerId}
+                Utworzono: {new Date(s.createdAt).toLocaleString()} | Właściciel: {s.ownerId === currentUser.id ? "Ty" : s.ownerId}
               </div>
             </div>
-            <div className="btn-group" role="group">
-              {forwardOnlyStatus(s).map(nextStatus => (
-                <button
-                  key={nextStatus}
-                  className="btn btn-sm btn-outline-primary"
-                  onClick={() => onStatusChange(s, nextStatus)}
-                >
-                  {nextStatus === "doing" ? "Przenieś do Doing" : "Zakończ (Done)"}
-                </button>
-              ))}
-              <button
-                className="btn btn-sm btn-warning"
-                onClick={() => onEdit(s)}
-              >
+            <div className="btn-group mt-2 mt-md-0" role="group">
+              <button className="btn btn-sm btn-info" onClick={() => onEdit(s)}>
                 Edytuj
               </button>
-              <button
-                className="btn btn-sm btn-danger"
-                onClick={() => onDelete(s.id)}
-              >
+              <button className="btn btn-sm btn-danger" onClick={() => onDelete(s.id)}>
                 Usuń
               </button>
+              {forwardOnlyStatus(s).map(status => (
+                <button
+                  key={status}
+                  className="btn btn-sm btn-secondary"
+                  onClick={() => onStatusChange(s, status)}
+                >
+                  Przenieś do {status}
+                </button>
+              ))}
             </div>
           </li>
         ))}

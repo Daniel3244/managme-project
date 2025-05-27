@@ -1,34 +1,29 @@
 export interface Project {
-  id: number;
+  id: string;
   name: string;
   description: string;
 }
 class ProjectService {
-  static getProjects(): Project[] {
-    const projects = localStorage.getItem("projects");
-    return projects ? JSON.parse(projects) : [];
+  static async getProjects(): Promise<Project[]> {
+    const res = await fetch("http://localhost:4000/api/projects");
+    return res.json();
   }
-  static saveProjects(projects: Project[]) {
-    localStorage.setItem("projects", JSON.stringify(projects));
+  static async addProject(project: Omit<Project, "id">) {
+    await fetch("http://localhost:4000/api/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(project)
+    });
   }
-  static addProject(project: Omit<Project, "id">) {
-    const projects = this.getProjects();
-    const newProject: Project = { id: Date.now(), ...project };
-    projects.push(newProject);
-    this.saveProjects(projects);
+  static async updateProject(updatedProject: Project) {
+    await fetch(`http://localhost:4000/api/projects/${updatedProject.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedProject)
+    });
   }
-  static updateProject(updatedProject: Project) {
-    let projects = this.getProjects();
-    const index = projects.findIndex(p => p.id === updatedProject.id);
-    if (index !== -1) {
-      projects[index] = updatedProject;
-      this.saveProjects(projects);
-    }
-  }
-  static deleteProject(id: number) {
-    let projects = this.getProjects();
-    projects = projects.filter(p => p.id !== id);
-    this.saveProjects(projects);
+  static async deleteProject(id: string) {
+    await fetch(`http://localhost:4000/api/projects/${id}`, { method: "DELETE" });
   }
 }
 export default ProjectService;

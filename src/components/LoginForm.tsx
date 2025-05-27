@@ -15,18 +15,17 @@ const LoginForm: React.FC<Props> = ({ onLoginSuccess, darkMode, toggleDarkMode }
     e.preventDefault();
     setError(null);
     try {
-      const res = await fetch("http://localhost:4000/api/login", {
+      const response = await fetch("http://localhost:4000/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ login, password }),
       });
-      if (!res.ok) {
-        const data = await res.json();
+      const data = await response.json();
+      if (data.success) {
+        onLoginSuccess(data.token);
+      } else {
         setError(data.message || "Błąd logowania");
-        return;
       }
-      const data = await res.json();
-      onLoginSuccess(data.token);
     } catch {
       setError("Błąd sieci");
     }
@@ -42,7 +41,7 @@ const LoginForm: React.FC<Props> = ({ onLoginSuccess, darkMode, toggleDarkMode }
             className={`btn btn-sm btn-${darkMode ? "light" : "dark"}`}
             onClick={toggleDarkMode}
           >
-            {darkMode ? "🌞" : "🌜"}
+            {darkMode ? "🌞" : "🌙"}
           </button>
         </div>
         {error && <div className="alert alert-danger py-1">{error}</div>}
@@ -54,7 +53,7 @@ const LoginForm: React.FC<Props> = ({ onLoginSuccess, darkMode, toggleDarkMode }
               className="form-control"
               value={login}
               onChange={e => setLogin(e.target.value)}
-              required
+              placeholder="Login"
             />
           </div>
           <div className="mb-3">
@@ -64,11 +63,11 @@ const LoginForm: React.FC<Props> = ({ onLoginSuccess, darkMode, toggleDarkMode }
               className="form-control"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              required
+              placeholder="Hasło"
             />
           </div>
           <button type="submit" className="btn btn-primary w-100">
-            Zaloguj
+            Zaloguj się
           </button>
         </form>
       </div>
