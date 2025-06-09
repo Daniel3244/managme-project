@@ -2,9 +2,10 @@ export interface User {
   id: number;
   firstName: string;
   lastName: string;
+  role: "admin" | "devops" | "developer";
 }
 class UserService {
-  static currentUser: User = { id: 1, firstName: "Jan", lastName: "Kowalski" };
+  static currentUser: User = { id: 1, firstName: "Jan", lastName: "Kowalski", role: "admin" };
   static getCurrentUser(): User {
     return this.currentUser;
   }

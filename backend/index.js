@@ -96,3 +96,42 @@ app.get("/api/me", (req, res) => {
     res.status(401).json({ message: "Nieautoryzowany" })
   }
 })
+
+// TASKS CRUD
+app.get("/api/tasks", async (req, res) => {
+  const tasks = await db.collection("tasks").find().toArray();
+  res.json(tasks.map(t => ({ ...t, id: t._id })));
+});
+
+app.get("/api/tasks/:id", async (req, res) => {
+  const { id } = req.params;
+  const task = await db.collection("tasks").findOne({ _id: new ObjectId(id) });
+  if (!task) return res.status(404).json({ message: "Task not found" });
+  res.json({ ...task, id: task._id });
+});
+
+app.post("/api/tasks", async (req, res) => {
+  const task = {
+    ...req.body,
+    status: "todo",
+    createdAt: new Date().toISOString(),
+  };
+  const result = await db.collection("tasks").insertOne(task);
+  res.json({ ...task, id: result.insertedId });
+});
+
+app.put("/api/tasks/:id", async (req, res) => {
+  const { id } = req.params;
+  const { id: _, _id, ...fieldsToUpdate } = req.body;
+  await db.collection("tasks").updateOne(
+    { _id: new ObjectId(id) },
+    { $set: fieldsToUpdate }
+  );
+  res.json({ id, ...fieldsToUpdate });
+});
+
+app.delete("/api/tasks/:id", async (req, res) => {
+  const { id } = req.params;
+  await db.collection("tasks").deleteOne({ _id: new ObjectId(id) });
+  res.json({ id });
+});

@@ -22,6 +22,7 @@ const App = () => {
   const [storyToEdit, setStoryToEdit] = useState<Story | undefined>();
   const [token, setToken] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
 
   useEffect(() => {
     document.body.classList.toggle("bg-dark", darkMode);
@@ -166,7 +167,7 @@ const App = () => {
         <div className="card">
           <div className="card-body">
             <h4 className="card-title mb-3">Aktywny Projekt: {currentProject.name}</h4>
-            <button className="btn btn-outline-secondary mb-3" onClick={() => setCurrentProject(null)}>
+            <button className="btn btn-outline-secondary mb-3 me-2" onClick={() => setCurrentProject(null)}>
               Odmapuj Projekt
             </button>
             <StoryForm
@@ -181,6 +182,8 @@ const App = () => {
               onDelete={handleStoryDelete}
               onStatusChange={handleStatusChange}
               currentUser={currentUser}
+              selectedStoryId={selectedStoryId}
+              setSelectedStoryId={setSelectedStoryId}
             />
           </div>
         </div>
