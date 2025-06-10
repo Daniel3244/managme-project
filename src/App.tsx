@@ -53,8 +53,37 @@ const App = () => {
       StoryService.getStories(currentProject.id).then(setStories)
     } else {
       setStories([])
+      setSelectedStoryId(null); // Reset selected story if project is removed
+      setStoryToEdit(undefined); // Reset story edit form if project is removed
     }
   }, [currentProject])
+
+  useEffect(() => {
+    // If there is no currentProject, reset all story-related state
+    if (!currentProject) {
+      setStories([]);
+      setSelectedStoryId(null);
+      setStoryToEdit(undefined);
+    }
+  }, [currentProject])
+
+  useEffect(() => {
+    // If selectedStoryId is not present in stories, reset selection and edit form
+    if (selectedStoryId && !stories.find(s => s.id === selectedStoryId)) {
+      setSelectedStoryId(null);
+      setStoryToEdit(undefined);
+    }
+  }, [stories, selectedStoryId])
+
+  useEffect(() => {
+    // If there are no projects, reset currentProject and all story-related state
+    if (projects.length === 0) {
+      setCurrentProject(null);
+      setStories([]);
+      setSelectedStoryId(null);
+      setStoryToEdit(undefined);
+    }
+  }, [projects])
 
   const refreshProjects = () => ProjectService.getProjects().then(setProjects)
   const refreshStories = () => currentProject && StoryService.getStories(currentProject.id).then(setStories)
