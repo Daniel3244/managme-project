@@ -18,6 +18,7 @@ const ProjectList: React.FC<Props> = ({
       {projects.map(p => (
         <li
           key={p.id}
+          data-cy="project-item"
           className="list-group-item d-flex justify-content-between align-items-center"
         >
           <div className="text-start">

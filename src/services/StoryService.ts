@@ -19,11 +19,12 @@ export class StoryService {
   }
 
   static async addStory(projectId: string, s: Omit<Story, "id" | "createdAt" | "ownerId">) {
-    await fetch(`http://localhost:4000/api/projects/${projectId}/stories`, {
+    const res = await fetch(`http://localhost:4000/api/projects/${projectId}/stories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(s)
     });
+    return res.json();
   }
 
   static async updateStory(projectId: string, story: Story) {

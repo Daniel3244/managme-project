@@ -77,7 +77,7 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
   };
 
   return (
-    <div style={{ background: "#fff", padding: 24, borderRadius: 12, minWidth: 350, maxWidth: 420 }}>
+    <div className="modal-content" style={{ background: "#fff", padding: 24, borderRadius: 12, minWidth: 350, maxWidth: 420 }}>
       <h4 className="mb-3">Szczegóły zadania</h4>
       {editMode ? (
         <>

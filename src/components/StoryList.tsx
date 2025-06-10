@@ -1,5 +1,5 @@
 import TaskForm from "./TaskForm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TaskDetails from "./TaskDetails";
 import { Story } from "../services/StoryService";
 import KanbanBoard from "./KanbanBoard";
@@ -18,6 +18,7 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
   const [filter, setFilter] = useState<"all" | "todo" | "doing" | "done">("all");
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [refreshKanban, setRefreshKanban] = useState(0);
+  const [pendingKanbanRefresh, setPendingKanbanRefresh] = useState(false);
   const filteredStories =
     filter === "all" ? stories : stories.filter(s => s.status === filter);
   const forwardOnlyStatus = (s: Story): ("todo" | "doing" | "done")[] => {
@@ -29,6 +30,14 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
   const handleTaskCreated = () => {
     setRefreshKanban(r => r + 1);
   };
+
+  // Ensure Kanban refresh happens after modal closes
+  useEffect(() => {
+    if (!selectedTask && pendingKanbanRefresh) {
+      setRefreshKanban(r => r + 1);
+      setPendingKanbanRefresh(false);
+    }
+  }, [selectedTask, pendingKanbanRefresh]);
 
   return (
     <div>
@@ -49,6 +58,8 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
         {filteredStories.map(s => (
           <li
             key={s.id}
+            data-cy="story-item"
+            data-story-id={s.id}
             className="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-md-center"
           >
             <div className="mb-2 mb-md-0">
@@ -62,22 +73,26 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
               </div>
             </div>
             <div className="btn-group mt-2 mt-md-0" role="group">
-              <button className="btn btn-sm btn-info" onClick={() => onEdit(s)}>
+              <button className="btn btn-sm btn-info" onClick={e => { e.stopPropagation(); onEdit(s); }}>
                 Edytuj
               </button>
-              <button className="btn btn-sm btn-danger" onClick={() => onDelete(s.id)}>
+              <button className="btn btn-sm btn-danger" onClick={e => { e.stopPropagation(); onDelete(s.id); }}>
                 Usuń
               </button>
               {forwardOnlyStatus(s).map(status => (
                 <button
                   key={status}
                   className="btn btn-sm btn-secondary"
-                  onClick={() => onStatusChange(s, status)}
+                  onClick={e => { e.stopPropagation(); onStatusChange(s, status); }}
                 >
                   Przenieś do {status}
                 </button>
               ))}
-              <button className="btn btn-sm btn-primary ms-2" onClick={() => setSelectedStoryId(s.id)}>
+              <button
+                className="btn btn-sm btn-primary ms-2"
+                data-cy={`choose-story-${s.id}`}
+                onClick={e => { e.stopPropagation(); setSelectedStoryId(s.id); }}
+              >
                 Wybierz
               </button>
             </div>
@@ -93,12 +108,12 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
             Odmapuj Historyjkę
           </button>
           <TaskForm storyId={selectedStoryId} onCreated={handleTaskCreated} />
-          <KanbanBoard storyId={selectedStoryId} key={refreshKanban} onTaskClick={setSelectedTask} />
+          <KanbanBoard storyId={selectedStoryId} refreshKanban={refreshKanban} onTaskClick={setSelectedTask} />
         </div>
       )}
       {selectedTask && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <TaskDetails taskId={selectedTask.id} onClose={() => setSelectedTask(null)} onUpdated={() => { setSelectedTask(null); setRefreshKanban(r => r + 1); }} stories={stories} />
+          <TaskDetails taskId={selectedTask.id} onClose={() => setSelectedTask(null)} onUpdated={() => { setSelectedTask(null); setPendingKanbanRefresh(true); }} stories={stories} />
         </div>
       )}
     </div>

@@ -77,15 +77,14 @@ const App = () => {
         createdAt: s.createdAt,
         ownerId: s.ownerId || currentUser.id
       });
+      await refreshStories();
     } else {
       await StoryService.addStory(currentProject.id, {
         ...s,
-        projectId: currentProject.id,
-        createdAt: new Date().toISOString(),
-        ownerId: currentUser.id
+        projectId: currentProject.id
       });
+      await refreshStories();
     }
-    refreshStories();
     resetStoryEdit();
   };
 

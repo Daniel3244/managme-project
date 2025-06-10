@@ -57,16 +57,17 @@ function KanbanColumn({ title, tasks, onTaskClick }: KanbanColumnProps) {
 interface KanbanBoardProps {
   storyId?: string;
   onTaskClick?: (task: Task) => void;
+  refreshKanban?: number;
 }
 
-export default function KanbanBoard({ storyId, onTaskClick }: KanbanBoardProps) {
+export default function KanbanBoard({ storyId, onTaskClick, refreshKanban }: KanbanBoardProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
     TaskApi.getAll().then(all => {
       setTasks(storyId ? all.filter(t => t.storyId === storyId) : all);
     });
-  }, [storyId]);
+  }, [storyId, refreshKanban]);
 
   const todo = tasks.filter(t => t.status === "todo");
   const doing = tasks.filter(t => t.status === "doing");
