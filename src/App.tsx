@@ -13,6 +13,7 @@ import StoryList from "./components/StoryList";
 import LoginForm from "./components/LoginForm";
 
 const App = () => {
+  // State for dark mode, projects, stories, user, etc.
   const [darkMode, setDarkMode] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectToEdit, setProjectToEdit] = useState<Project | undefined>();
@@ -24,11 +25,13 @@ const App = () => {
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Toggle dark mode classes on body
     document.body.classList.toggle("bg-dark", darkMode);
     document.body.classList.toggle("text-light", darkMode);
   }, [darkMode]);
 
   useEffect(() => {
+    // Fetch current user info after login
     if (!token) return;
     fetch("http://localhost:4000/api/me", {
       headers: { Authorization: `Bearer ${token}` }
@@ -45,10 +48,12 @@ const App = () => {
   }, [token]);
 
   useEffect(() => {
+    // Fetch all projects on mount
     ProjectService.getProjects().then(setProjects)
   }, [])
 
   useEffect(() => {
+    // Fetch stories for selected project or reset if none
     if (currentProject) {
       StoryService.getStories(currentProject.id).then(setStories)
     } else {
@@ -59,32 +64,24 @@ const App = () => {
   }, [currentProject])
 
   useEffect(() => {
-    // If there is no currentProject, reset all story-related state
-    if (!currentProject) {
-      setStories([]);
-      setSelectedStoryId(null);
-      setStoryToEdit(undefined);
-    }
-  }, [currentProject])
-
-  useEffect(() => {
     // If selectedStoryId is not present in stories, reset selection and edit form
     if (selectedStoryId && !stories.find(s => s.id === selectedStoryId)) {
       setSelectedStoryId(null);
       setStoryToEdit(undefined);
     }
-  }, [stories, selectedStoryId])
+  }, [stories, selectedStoryId]);
 
   useEffect(() => {
-    // If there are no projects, reset currentProject and all story-related state
+    // If there are no projects, reset everything
     if (projects.length === 0) {
       setCurrentProject(null);
       setStories([]);
       setSelectedStoryId(null);
       setStoryToEdit(undefined);
     }
-  }, [projects])
+  }, [projects]);
 
+  // Helper functions for refreshing and resetting state
   const refreshProjects = () => ProjectService.getProjects().then(setProjects)
   const refreshStories = () => currentProject && StoryService.getStories(currentProject.id).then(setStories)
   const resetProjectEdit = () => setProjectToEdit(undefined);
@@ -100,6 +97,7 @@ const App = () => {
   const handleStorySaved = async (
     s: Omit<Story, "id" | "createdAt" | "ownerId"> & { id?: string; createdAt?: string; ownerId?: string }
   ) => {
+    // Add or update a story, always set createdAt and ownerId
     if (!currentProject) return;
     if (s.id) {
       await StoryService.updateStory(currentProject.id, {
@@ -157,6 +155,7 @@ const App = () => {
   };
 
   if (!token) {
+    // Show login form if not logged in
     return (
       <div className="d-flex flex-column justify-content-center align-items-center vh-100">
         <LoginForm onLoginSuccess={setToken} darkMode={darkMode} toggleDarkMode={() => setDarkMode(!darkMode)} />
@@ -165,10 +164,12 @@ const App = () => {
   }
 
   if (!currentUser) {
+    // Show loading if user data is not loaded
     return <div className="text-center mt-5">Ładowanie danych użytkownika...</div>;
   }
 
   return (
+    // Main app UI: user info, project form/list, story form/list
     <div
       className={`app-container container py-4 ${
         darkMode ? "bg-dark text-light" : "bg-light text-dark"

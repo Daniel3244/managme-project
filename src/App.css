@@ -211,7 +211,6 @@ form .form-group, .form-control, .form-select {
   transition: box-shadow 0.2s;
 }
 
-/* Kanban dark mode styles */
 body[data-theme='dark'] .kanban-column {
   background: #23272f !important;
   color: #f1f1f1 !important;
@@ -253,7 +252,6 @@ body.bg-dark .kanban-column, body.bg-dark .kanban-task-card {
   transition: background 0.2s, color 0.2s;
 }
 
-/* --- Kanban Board Visual Improvements --- */
 .kanban-board {
   display: flex;
   gap: 24px;

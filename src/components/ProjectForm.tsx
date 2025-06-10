@@ -10,15 +10,18 @@ interface Props {
 
 // Form for adding or editing a project
 const ProjectForm: React.FC<Props> = ({ onProjectAdded, onProjectUpdated, projectToEdit, resetEdit }) => {
+  // State for form fields
   const [name, setName] = useState(projectToEdit?.name || "");
   const [description, setDescription] = useState(projectToEdit?.description || "");
 
   useEffect(() => {
+    // Fill form fields if editing, otherwise reset
     setName(projectToEdit?.name || "");
     setDescription(projectToEdit?.description || "");
   }, [projectToEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    // Save or update project, then reset form
     e.preventDefault();
     if (!name.trim()) return;
     if (projectToEdit) {
@@ -32,6 +35,7 @@ const ProjectForm: React.FC<Props> = ({ onProjectAdded, onProjectUpdated, projec
   };
 
   return (
+    // Project creation/edit form UI
     <div>
       <h5 className="mb-3">{projectToEdit ? "Edytuj Projekt" : "Dodaj Projekt"}</h5>
       <form onSubmit={handleSubmit}>

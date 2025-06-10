@@ -17,6 +17,7 @@ interface Props {
 
 // List of user stories with Kanban and task details
 const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange, currentUser, selectedStoryId, setSelectedStoryId }) => {
+  // State for filter, selected task, and Kanban refresh
   const [filter, setFilter] = useState<"all" | "todo" | "doing" | "done">("all");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [refreshKanban, setRefreshKanban] = useState(0);
@@ -31,10 +32,12 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
   };
 
   const handleTaskCreated = () => {
+    // Refresh Kanban after task creation
     setRefreshKanban(r => r + 1);
   };
 
   useEffect(() => {
+    // Refresh Kanban after closing task details
     if (!selectedTask && pendingKanbanRefresh) {
       setRefreshKanban(r => r + 1);
       setPendingKanbanRefresh(false);

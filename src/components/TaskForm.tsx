@@ -9,12 +9,14 @@ interface TaskFormProps {
 
 // Form for adding a new task
 export default function TaskForm({ storyId, onCreated }: TaskFormProps) {
+  // State for form fields
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"niski" | "średni" | "wysoki">("średni");
   const [estimatedTime, setEstimatedTime] = useState(1);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    // Create new task and reset form
     e.preventDefault();
     const task: TaskCreate = { name, description, priority, storyId, estimatedTime };
     await TaskApi.create(task);

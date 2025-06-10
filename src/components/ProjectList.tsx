@@ -15,6 +15,7 @@ const ProjectList: React.FC<Props> = ({
   onProjectSelected
 }) => {
   return (
+    // Project list UI with edit, select, and delete actions
     <ul className="list-group">
       {projects.map(p => (
         <li

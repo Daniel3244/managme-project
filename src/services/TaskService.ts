@@ -1,3 +1,4 @@
+// Task types and interfaces
 export type TaskStatus = "todo" | "doing" | "done";
 
 // Task entity and related types

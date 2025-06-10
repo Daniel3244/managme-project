@@ -8,11 +8,13 @@ interface Props {
 
 // Login form for authentication
 const LoginForm: React.FC<Props> = ({ onLoginSuccess, darkMode, toggleDarkMode }) => {
+  // State for login, password, and error
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    // Handle login form submit
     e.preventDefault();
     setError(null);
     try {
@@ -33,6 +35,7 @@ const LoginForm: React.FC<Props> = ({ onLoginSuccess, darkMode, toggleDarkMode }
   };
 
   return (
+    // Login form UI
     <div className="d-flex flex-column justify-content-center align-items-center vh-100">
       <div className={`card p-4 ${darkMode ? "bg-secondary text-light" : "bg-white text-dark"}`} style={{ width: "100%", maxWidth: "400px" }}>
         <div className="d-flex justify-content-between align-items-center mb-3">

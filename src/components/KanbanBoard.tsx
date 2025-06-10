@@ -9,9 +9,9 @@ interface KanbanColumnProps {
   onTaskClick: (task: Task) => void;
 }
 
-// Kanban column with tasks
 function KanbanColumn({ title, tasks, onTaskClick, users }: KanbanColumnProps & { users: User[] }) {
   return (
+    // Kanban column UI with task cards
     <div className="kanban-column">
       <h3>{title}</h3>
       {tasks.length === 0 && <div className="text-muted" style={{ minHeight: 32 }}>&nbsp;</div>}
@@ -45,6 +45,7 @@ interface KanbanBoardProps {
 
 // Main Kanban board with columns
 export default function KanbanBoard({ storyId, onTaskClick, refreshKanban }: KanbanBoardProps) {
+  // State for tasks and static user list
   const [tasks, setTasks] = useState<Task[]>([]);
   // Static user list for demo
   const users: User[] = [
@@ -53,16 +54,19 @@ export default function KanbanBoard({ storyId, onTaskClick, refreshKanban }: Kan
   ];
 
   useEffect(() => {
+    // Fetch tasks for the selected story
     TaskApi.getAll().then(all => {
       setTasks(storyId ? all.filter(t => t.storyId === storyId) : all);
     });
   }, [storyId, refreshKanban]);
 
+  // Split tasks by status
   const todo = tasks.filter(t => t.status === "todo");
   const doing = tasks.filter(t => t.status === "doing");
   const done = tasks.filter(t => t.status === "done");
 
   return (
+    // Kanban board UI with columns
     <div className="kanban-board">
       <KanbanColumn title="To Do" tasks={todo} onTaskClick={onTaskClick || (() => {})} users={users} />
       <KanbanColumn title="Doing" tasks={doing} onTaskClick={onTaskClick || (() => {})} users={users} />

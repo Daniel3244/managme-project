@@ -13,6 +13,7 @@ interface TaskDetailsProps {
 
 // Modal with details and edit for a single task
 export default function TaskDetails({ taskId, onClose, onUpdated, stories }: TaskDetailsProps) {
+  // State for task, edit mode, and form fields
   const [task, setTask] = useState<Task | null>(null);
   const [assignUserId, setAssignUserId] = useState<number | undefined>();
   const [editMode, setEditMode] = useState(false);
@@ -27,6 +28,7 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
   ];
 
   useEffect(() => {
+    // Fetch task details when taskId changes
     TaskApi.get(taskId).then(t => {
       setTask(t);
       setEditName(t.name);
@@ -36,12 +38,14 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
     });
   }, [taskId]);
 
-  if (!task) return <div>Ładowanie...</div>;
+  if (!task) return <div>Ładowanie...</div>; // Show loading if task not loaded
 
+  // Find story name and assigned user for display
   const storyName = stories?.find(s => s.id === task.storyId)?.name || task.storyId;
   const assignedUser = users.find(u => u.id === task?.assignedUserId);
 
   const handleAssign = async () => {
+    // Assign user and move to 'doing'
     if (!assignUserId) return;
     const update: TaskUpdate = {
       assignedUserId: assignUserId,
@@ -53,6 +57,7 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
   };
 
   const handleDone = async () => {
+    // Mark task as done
     const update: TaskUpdate = {
       status: "done",
       finishedAt: new Date().toISOString(),
@@ -62,11 +67,13 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
   };
 
   const handleDelete = async () => {
+    // Delete task
     await TaskApi.delete(taskId);
     onUpdated();
   };
 
   const handleEdit = async () => {
+    // Save task edits
     await TaskApi.update(taskId, {
       name: editName,
       description: editDescription,
@@ -77,10 +84,11 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
     onUpdated();
   };
 
-  // Detect dark mode
+  // Detect dark mode for modal styling
   const isDark = typeof document !== 'undefined' && document.body.classList.contains('bg-dark');
 
   return (
+    // Modal content with edit and view modes
     <div
       className="modal-content"
       style={{

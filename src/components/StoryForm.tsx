@@ -10,12 +10,14 @@ interface Props {
 
 // Form for adding or editing a story (user story)
 const StoryForm: React.FC<Props> = ({ storyToEdit, onStorySaved, resetEdit, projectId }) => {
+  // State for form fields
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [status, setStatus] = useState<"todo" | "doing" | "done">("todo");
 
   useEffect(() => {
+    // Fill form fields if editing, otherwise reset
     if (storyToEdit) {
       setName(storyToEdit.name);
       setDescription(storyToEdit.description);
@@ -30,6 +32,7 @@ const StoryForm: React.FC<Props> = ({ storyToEdit, onStorySaved, resetEdit, proj
   }, [storyToEdit]);
 
   const handleSubmit = (e: React.FormEvent) => {
+    // Save or update story, then reset form
     e.preventDefault();
     if (!name.trim()) return;
 
@@ -45,6 +48,7 @@ const StoryForm: React.FC<Props> = ({ storyToEdit, onStorySaved, resetEdit, proj
   };
 
   return (
+    // Story creation/edit form UI
     <div className="mb-4">
       <h5 className="mb-3">{storyToEdit ? "Edytuj Historyjkę" : "Dodaj Historyjkę"}</h5>
       <form onSubmit={handleSubmit}>
