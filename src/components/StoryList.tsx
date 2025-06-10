@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import TaskDetails from "./TaskDetails";
 import { Story } from "../services/StoryService";
 import KanbanBoard from "./KanbanBoard";
+import { Task } from "../services/TaskService";
 
 interface Props {
   stories: Story[];
@@ -16,7 +17,7 @@ interface Props {
 
 const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange, currentUser, selectedStoryId, setSelectedStoryId }) => {
   const [filter, setFilter] = useState<"all" | "todo" | "doing" | "done">("all");
-  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [refreshKanban, setRefreshKanban] = useState(0);
   const [pendingKanbanRefresh, setPendingKanbanRefresh] = useState(false);
   const filteredStories =

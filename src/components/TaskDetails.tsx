@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import TaskApi from "../services/TaskApi";
 import { Task, TaskUpdate } from "../services/TaskService";
-import UserService, { User } from "../services/UserService";
+import { User } from "../services/UserService";
 import { Story } from "../services/StoryService";
 
 interface TaskDetailsProps {
@@ -11,11 +11,6 @@ interface TaskDetailsProps {
   stories?: Story[];
 }
 
-const users: User[] = [
-  { id: 1, firstName: "Jan", lastName: "Kowalski", role: "devops" },
-  { id: 2, firstName: "Anna", lastName: "Nowak", role: "developer" },
-];
-
 export default function TaskDetails({ taskId, onClose, onUpdated, stories }: TaskDetailsProps) {
   const [task, setTask] = useState<Task | null>(null);
   const [assignUserId, setAssignUserId] = useState<number | undefined>();
@@ -24,6 +19,10 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
   const [editDescription, setEditDescription] = useState("");
   const [editPriority, setEditPriority] = useState<"niski" | "średni" | "wysoki">("średni");
   const [editEstimatedTime, setEditEstimatedTime] = useState(1);
+  const users: User[] = [
+    { id: 1, firstName: "Jan", lastName: "Kowalski", role: "devops" },
+    { id: 2, firstName: "Anna", lastName: "Nowak", role: "developer" },
+  ]; // Możesz pobrać z UserService jeśli będzie dynamiczne
 
   useEffect(() => {
     TaskApi.get(taskId).then(t => {
@@ -38,7 +37,7 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
   if (!task) return <div>Ładowanie...</div>;
 
   const storyName = stories?.find(s => s.id === task.storyId)?.name || task.storyId;
-  const assignedUser = users.find(u => u.id === task.assignedUserId);
+  const assignedUser = users.find(u => u.id === task?.assignedUserId);
 
   const handleAssign = async () => {
     if (!assignUserId) return;

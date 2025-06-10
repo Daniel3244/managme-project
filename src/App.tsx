@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./app.css";
+import "./App.css";
 
-import UserService from "./services/UserService";
 import ProjectService, { Project } from "./services/ProjectService";
 import StoryService, { Story } from "./services/StoryService";
 
@@ -74,7 +73,7 @@ const App = () => {
         ...s,
         id: s.id,
         projectId: currentProject.id,
-        createdAt: s.createdAt,
+        createdAt: s.createdAt || new Date().toISOString(),
         ownerId: s.ownerId || currentUser.id
       });
       await refreshStories();
@@ -108,6 +107,12 @@ const App = () => {
     refreshProjects()
     resetProjectEdit()
   }
+
+  const handleProjectUpdated = async (project: Project) => {
+    await ProjectService.updateProject(project);
+    refreshProjects();
+    resetProjectEdit();
+  };
 
   if (!token) {
     return (
@@ -150,6 +155,7 @@ const App = () => {
         <div className="card-body">
           <ProjectForm
             onProjectAdded={handleProjectSaved}
+            onProjectUpdated={handleProjectUpdated}
             projectToEdit={projectToEdit}
             resetEdit={resetProjectEdit}
           />

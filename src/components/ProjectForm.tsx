@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import ProjectService, { Project } from "../services/ProjectService";
+import { Project } from "../services/ProjectService";
 
 interface Props {
-  onProjectAdded: (project: Project) => Promise<void>;
+  onProjectAdded: (project: Omit<Project, "id">) => Promise<void>;
+  onProjectUpdated: (project: Project) => Promise<void>;
   projectToEdit?: Project;
   resetEdit: () => void;
 }
 
-const ProjectForm: React.FC<Props> = ({ onProjectAdded, projectToEdit, resetEdit }) => {
+const ProjectForm: React.FC<Props> = ({ onProjectAdded, onProjectUpdated, projectToEdit, resetEdit }) => {
   const [name, setName] = useState(projectToEdit?.name || "");
   const [description, setDescription] = useState(projectToEdit?.description || "");
 
@@ -19,7 +20,11 @@ const ProjectForm: React.FC<Props> = ({ onProjectAdded, projectToEdit, resetEdit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    await onProjectAdded({ name, description });
+    if (projectToEdit) {
+      await onProjectUpdated({ id: projectToEdit.id, name, description });
+    } else {
+      await onProjectAdded({ name, description });
+    }
     setName("");
     setDescription("");
     resetEdit();

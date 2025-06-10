@@ -210,3 +210,118 @@ form .form-group, .form-control, .form-select {
   box-shadow: 0 6px 32px 0 rgba(60,72,100,0.16);
   transition: box-shadow 0.2s;
 }
+
+/* Kanban dark mode styles */
+body[data-theme='dark'] .kanban-column {
+  background: #23272f !important;
+  color: #f1f1f1 !important;
+  border: 1px solid #333 !important;
+  box-shadow: 0 2px 8px #0002;
+}
+body[data-theme='dark'] .kanban-column h3 {
+  color: #bfcfff !important;
+}
+body[data-theme='dark'] .kanban-task-card {
+  background: #2c313a !important;
+  color: #f1f1f1 !important;
+  border: 1px solid #444 !important;
+}
+body[data-theme='dark'] .kanban-task-card small {
+  color: #b0b0b0 !important;
+}
+body[data-theme='dark'] .kanban-column, body[data-theme='dark'] .kanban-task-card {
+  transition: background 0.2s, color 0.2s;
+}
+body.bg-dark .kanban-column {
+  background: #23272f !important;
+  color: #f1f1f1 !important;
+  border: 1px solid #333 !important;
+  box-shadow: 0 2px 8px #0002;
+}
+body.bg-dark .kanban-column h3 {
+  color: #bfcfff !important;
+}
+body.bg-dark .kanban-task-card {
+  background: #2c313a !important;
+  color: #f1f1f1 !important;
+  border: 1px solid #444 !important;
+}
+body.bg-dark .kanban-task-card small {
+  color: #b0b0b0 !important;
+}
+body.bg-dark .kanban-column, body.bg-dark .kanban-task-card {
+  transition: background 0.2s, color 0.2s;
+}
+
+/* --- Kanban Board Visual Improvements --- */
+.kanban-board {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  margin: 0 auto;
+  min-height: 320px;
+}
+.kanban-column {
+  flex: 1 1 0;
+  max-width: 320px;
+  min-width: 220px;
+  background: #f4f4f4;
+  border-radius: 10px;
+  padding: 18px 14px 18px 14px;
+  margin: 0;
+  box-shadow: 0 2px 8px 0 rgba(60,72,100,0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 320px;
+  height: 100%;
+}
+.kanban-column h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.kanban-task-card {
+  background: #fff;
+  margin: 10px 0;
+  padding: 14px 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px 0 rgba(60,72,100,0.08);
+  cursor: pointer;
+  border: 1px solid #e3e6f3;
+  transition: box-shadow 0.2s, border 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+}
+.kanban-task-card > *:not(:last-child) {
+  margin-bottom: 4px;
+}
+@media (max-width: 900px) {
+  .kanban-board {
+    gap: 12px;
+  }
+  .kanban-column {
+    max-width: 100%;
+    min-width: 0;
+    padding: 12px 6px;
+  }
+}
+@media (max-width: 700px) {
+  .kanban-board {
+    flex-direction: column;
+    gap: 0;
+    align-items: stretch;
+  }
+  .kanban-column {
+    min-width: unset;
+    width: 100%;
+    margin: 8px 0;
+    max-width: 100%;
+  }
+}
