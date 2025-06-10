@@ -8,6 +8,7 @@ interface Props {
   projectId: string;
 }
 
+// Form for adding or editing a story (user story)
 const StoryForm: React.FC<Props> = ({ storyToEdit, onStorySaved, resetEdit, projectId }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

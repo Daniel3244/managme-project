@@ -2,6 +2,7 @@ import { Task, TaskCreate, TaskUpdate } from "./TaskService";
 
 const API_URL = "http://localhost:4000/api/tasks";
 
+// Service for CRUD operations on tasks
 export default class TaskApi {
   static async getAll(): Promise<Task[]> {
     const res = await fetch(API_URL);

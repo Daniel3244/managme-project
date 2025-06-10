@@ -7,6 +7,7 @@ interface Props {
   onProjectSelected: (p: Project) => void;
 }
 
+// List of all projects with actions
 const ProjectList: React.FC<Props> = ({
   projects,
   onProjectDeleted,

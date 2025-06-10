@@ -1,5 +1,6 @@
 export type TaskStatus = "todo" | "doing" | "done";
 
+// Task entity and related types
 export interface Task {
   id?: string;
   name: string;

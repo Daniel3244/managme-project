@@ -3,6 +3,8 @@ export interface Project {
   name: string;
   description: string;
 }
+
+// Service for CRUD operations on projects
 class ProjectService {
   static async getProjects(): Promise<Project[]> {
     const res = await fetch("http://localhost:4000/api/projects");

@@ -4,6 +4,8 @@ export interface User {
   lastName: string;
   role: "admin" | "devops" | "developer";
 }
+
+// Service for getting current user (demo only)
 class UserService {
   static currentUser: User = { id: 1, firstName: "Jan", lastName: "Kowalski", role: "admin" };
   static getCurrentUser(): User {

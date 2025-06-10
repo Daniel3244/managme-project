@@ -11,6 +11,7 @@ interface TaskDetailsProps {
   stories?: Story[];
 }
 
+// Modal with details and edit for a single task
 export default function TaskDetails({ taskId, onClose, onUpdated, stories }: TaskDetailsProps) {
   const [task, setTask] = useState<Task | null>(null);
   const [assignUserId, setAssignUserId] = useState<number | undefined>();
@@ -19,10 +20,11 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
   const [editDescription, setEditDescription] = useState("");
   const [editPriority, setEditPriority] = useState<"niski" | "średni" | "wysoki">("średni");
   const [editEstimatedTime, setEditEstimatedTime] = useState(1);
+  // Static user list for demo
   const users: User[] = [
     { id: 1, firstName: "Jan", lastName: "Kowalski", role: "devops" },
     { id: 2, firstName: "Anna", lastName: "Nowak", role: "developer" },
-  ]; // Możesz pobrać z UserService jeśli będzie dynamiczne
+  ];
 
   useEffect(() => {
     TaskApi.get(taskId).then(t => {
@@ -75,8 +77,23 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
     onUpdated();
   };
 
+  // Detect dark mode
+  const isDark = typeof document !== 'undefined' && document.body.classList.contains('bg-dark');
+
   return (
-    <div className="modal-content" style={{ background: "#fff", padding: 24, borderRadius: 12, minWidth: 350, maxWidth: 420 }}>
+    <div
+      className="modal-content"
+      style={{
+        background: isDark ? '#23272f' : '#fff',
+        color: isDark ? '#f1f1f1' : '#222',
+        padding: 24,
+        borderRadius: 12,
+        minWidth: 350,
+        maxWidth: 420,
+        boxShadow: isDark ? '0 2px 16px #0008' : '0 2px 16px #0002',
+        border: isDark ? '1px solid #333' : 'none',
+      }}
+    >
       <h4 className="mb-3">Szczegóły zadania</h4>
       {editMode ? (
         <>
@@ -98,52 +115,51 @@ export default function TaskDetails({ taskId, onClose, onUpdated, stories }: Tas
           </div>
           <div className="mb-2">
             <label className="form-label">Przewidywany czas (h)</label>
-            <input type="number" className="form-control" value={editEstimatedTime} onChange={e => setEditEstimatedTime(Number(e.target.value))} min={1} />
+            <input className="form-control" type="number" value={editEstimatedTime} onChange={e => setEditEstimatedTime(Number(e.target.value))} />
           </div>
           <button className="btn btn-success me-2" onClick={handleEdit}>Zapisz zmiany</button>
           <button className="btn btn-secondary" onClick={() => setEditMode(false)}>Anuluj</button>
         </>
       ) : (
         <>
-          <div className="mb-2"><b>Nazwa:</b> {task.name}</div>
-          <div className="mb-2"><b>Opis:</b> {task.description}</div>
-          <div className="mb-2"><b>Priorytet:</b> {task.priority}</div>
-          <div className="mb-2"><b>Historyjka:</b> {storyName}</div>
-          <div className="mb-2"><b>Przewidywany czas:</b> {task.estimatedTime}h</div>
-          <div className="mb-2"><b>Stan:</b> {task.status}</div>
-          <div className="mb-2"><b>Data dodania:</b> {new Date(task.createdAt).toLocaleString()}</div>
-          {task.startedAt && <div className="mb-2"><b>Data startu:</b> {new Date(task.startedAt).toLocaleString()}</div>}
-          {task.finishedAt && <div className="mb-2"><b>Data zakończenia:</b> {new Date(task.finishedAt).toLocaleString()}</div>}
-          {assignedUser && <div className="mb-2"><b>Użytkownik odpowiedzialny:</b> {assignedUser.firstName} {assignedUser.lastName} ({assignedUser.role})</div>}
-          {task.status === "todo" && (
-            <div className="mb-2">
-              <select className="form-select mb-2" onChange={e => setAssignUserId(Number(e.target.value))} defaultValue="">
-                <option value="">Przypisz osobę</option>
-                {users.map(u => (
-                  <option key={u.id} value={u.id}>{u.firstName} {u.lastName} ({u.role})</option>
-                ))}
-              </select>
-              <button className="btn btn-primary" onClick={handleAssign} disabled={!assignUserId}>Przypisz i przenieś do Doing</button>
-            </div>
-          )}
-          {task.status === "doing" && (
-            <div className="mb-2">
-              <button className="btn btn-primary" onClick={handleDone}>Przenieś do Done</button>
-            </div>
-          )}
-          {task.status === "done" && task.startedAt && task.finishedAt && (() => {
-            const ms = new Date(task.finishedAt).getTime() - new Date(task.startedAt).getTime();
-            const hours = Math.floor(ms / 3600000);
-            const minutes = Math.floor((ms % 3600000) / 60000);
-            return (
-              <div className="mb-2"><b>Czas realizacji:</b> {hours} godzin{hours !== 1 ? "" : "a"} {minutes} minut</div>
-            );
-          })()}
-          <div className="d-flex gap-2 mt-3">
-            <button className="btn btn-warning" onClick={() => setEditMode(true)}>Edytuj</button>
-            <button className="btn btn-danger" onClick={handleDelete}>Usuń</button>
-            <button className="btn btn-secondary" onClick={onClose}>Zamknij</button>
+          <div className="mb-2"><b>{task.name}</b></div>
+          <div className="mb-2">{task.description}</div>
+          <div className="mb-2">Priorytet: {task.priority}</div>
+          <div className="mb-2">Przewidywany czas: {task.estimatedTime}h</div>
+          <div className="mb-2">Historyjka: {storyName}</div>
+          <div className="mb-2">Przypisane: {assignedUser ? `${assignedUser.firstName} ${assignedUser.lastName} (${assignedUser.role})` : "-"}</div>
+          <div className="mb-2">Stan: {task.status}</div>
+          <div className="mb-2 text-muted" style={{ fontSize: '0.95em' }}>
+            Utworzono: {task.createdAt ? new Date(task.createdAt).toLocaleString() : '-'}<br/>
+            Rozpoczęto: {task.startedAt ? new Date(task.startedAt).toLocaleString() : '-'}<br/>
+            Zakończono: {task.finishedAt ? new Date(task.finishedAt).toLocaleString() : '-'}
           </div>
+          <div className="d-flex flex-wrap gap-2 mb-2">
+            <button className="btn btn-primary" onClick={() => setEditMode(true)}>Edytuj</button>
+            <button className="btn btn-danger" onClick={handleDelete}>Usuń</button>
+            {!task.assignedUserId && task.status === "todo" && (
+              <>
+                <select className="form-select d-inline w-auto" value={assignUserId} onChange={e => setAssignUserId(Number(e.target.value))}>
+                  <option value="">Przypisz użytkownika</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>{u.firstName} {u.lastName} ({u.role})</option>
+                  ))}
+                </select>
+                <button
+                  className={`btn ${assignUserId ? 'btn-success' : 'btn-secondary'}`}
+                  onClick={handleAssign}
+                  disabled={!assignUserId}
+                  style={!assignUserId ? { opacity: 0.6, pointerEvents: 'none' } : {}}
+                >
+                  Przypisz i przenieś do Doing
+                </button>
+              </>
+            )}
+            {task.status === "doing" && (
+              <button className="btn btn-success" onClick={handleDone}>Przenieś do Done</button>
+            )}
+          </div>
+          <button className="btn btn-outline-secondary float-end" onClick={onClose}>Zamknij</button>
         </>
       )}
     </div>

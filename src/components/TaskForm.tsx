@@ -7,6 +7,7 @@ interface TaskFormProps {
   onCreated: () => void;
 }
 
+// Form for adding a new task
 export default function TaskForm({ storyId, onCreated }: TaskFormProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

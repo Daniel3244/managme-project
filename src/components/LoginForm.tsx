@@ -6,6 +6,7 @@ interface Props {
   toggleDarkMode: () => void;
 }
 
+// Login form for authentication
 const LoginForm: React.FC<Props> = ({ onLoginSuccess, darkMode, toggleDarkMode }) => {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");

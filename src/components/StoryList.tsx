@@ -15,6 +15,7 @@ interface Props {
   setSelectedStoryId: (id: string | null) => void;
 }
 
+// List of user stories with Kanban and task details
 const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange, currentUser, selectedStoryId, setSelectedStoryId }) => {
   const [filter, setFilter] = useState<"all" | "todo" | "doing" | "done">("all");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -22,6 +23,7 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
   const [pendingKanbanRefresh, setPendingKanbanRefresh] = useState(false);
   const filteredStories =
     filter === "all" ? stories : stories.filter(s => s.status === filter);
+  // Only allow moving forward in status
   const forwardOnlyStatus = (s: Story): ("todo" | "doing" | "done")[] => {
     if (s.status === "todo") return ["doing"];
     if (s.status === "doing") return ["done"];
@@ -32,7 +34,6 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
     setRefreshKanban(r => r + 1);
   };
 
-  // Ensure Kanban refresh happens after modal closes
   useEffect(() => {
     if (!selectedTask && pendingKanbanRefresh) {
       setRefreshKanban(r => r + 1);
@@ -70,7 +71,11 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
                 Priorytet: <strong>{s.priority}</strong> | Status: <strong className="text-uppercase">{s.status}</strong>
               </div>
               <div className="small text-muted">
-                Utworzono: {new Date(s.createdAt).toLocaleString()} | Właściciel: {s.ownerId === currentUser.id ? "Ty" : s.ownerId}
+                Utworzono: {s.createdAt && typeof s.createdAt === 'string' && s.createdAt.length > 5 && !isNaN(Date.parse(s.createdAt)) ? new Date(s.createdAt).toLocaleString() : 'brak'}
+                {" | Właściciel: "}
+                {s.ownerId && currentUser && (s.ownerId === currentUser.id || s.ownerId === String(currentUser.id))
+                  ? `${currentUser.firstName} ${currentUser.lastName}`
+                  : (s.ownerId && s.ownerId !== '' ? s.ownerId : 'brak')}
               </div>
             </div>
             <div className="btn-group mt-2 mt-md-0" role="group">
@@ -112,9 +117,9 @@ const StoryList: React.FC<Props> = ({ stories, onEdit, onDelete, onStatusChange,
           <KanbanBoard storyId={selectedStoryId} refreshKanban={refreshKanban} onTaskClick={setSelectedTask} />
         </div>
       )}
-      {selectedTask && (
+      {selectedTask && selectedTask.id && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", background: "rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
-          <TaskDetails taskId={selectedTask.id} onClose={() => setSelectedTask(null)} onUpdated={() => { setSelectedTask(null); setPendingKanbanRefresh(true); }} stories={stories} />
+          <TaskDetails taskId={selectedTask.id as string} onClose={() => setSelectedTask(null)} onUpdated={() => { setSelectedTask(null); setPendingKanbanRefresh(true); }} stories={stories} />
         </div>
       )}
     </div>

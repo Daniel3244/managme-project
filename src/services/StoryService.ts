@@ -1,6 +1,3 @@
-// src/services/StoryService.ts
-import UserService from "./UserService";
-
 export interface Story {
   id: string;
   name: string;
@@ -12,13 +9,14 @@ export interface Story {
   ownerId: string;
 }
 
+// Service for CRUD operations on stories (user stories)
 export class StoryService {
   static async getStories(projectId: string) {
     const res = await fetch(`http://localhost:4000/api/projects/${projectId}/stories`);
     return res.json();
   }
 
-  static async addStory(projectId: string, s: Omit<Story, "id" | "createdAt" | "ownerId">) {
+  static async addStory(projectId: string, s: Omit<Story, "id">) {
     const res = await fetch(`http://localhost:4000/api/projects/${projectId}/stories`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

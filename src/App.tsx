@@ -60,7 +60,11 @@ const App = () => {
   const refreshStories = () => currentProject && StoryService.getStories(currentProject.id).then(setStories)
   const resetProjectEdit = () => setProjectToEdit(undefined);
   const handleProjectEdited = (p: Project) => setProjectToEdit(p);
-  const handleProjectSelected = (p: Project) => setCurrentProject(p);
+  const handleProjectSelected = (p: Project) => {
+    setCurrentProject(p);
+    setSelectedStoryId(null); // Reset selected story when project changes
+    setStoryToEdit(undefined); // Reset story edit form
+  };
   const resetStoryEdit = () => setStoryToEdit(undefined);
   const handleStoryEdit = (s: Story) => setStoryToEdit(s);
 
@@ -80,17 +84,22 @@ const App = () => {
     } else {
       await StoryService.addStory(currentProject.id, {
         ...s,
-        projectId: currentProject.id
+        projectId: currentProject.id,
+        createdAt: new Date().toISOString(),
+        ownerId: currentUser.id
       });
       await refreshStories();
     }
     resetStoryEdit();
+    setSelectedStoryId(null); // Reset mapped story after save
   };
 
   const handleStoryDelete = async (id: string) => {
     if (!currentProject) return;
     await StoryService.deleteStory(currentProject.id, id);
     refreshStories();
+    setSelectedStoryId(null); // Reset mapped story after delete
+    setStoryToEdit(undefined); // Reset story edit form
   };
 
   const handleStatusChange = async (story: Story, newStatus: "todo" | "doing" | "done") => {
@@ -106,12 +115,16 @@ const App = () => {
     await ProjectService.addProject(project)
     refreshProjects()
     resetProjectEdit()
+    setCurrentProject(null); // Reset mapped project after add
+    setSelectedStoryId(null); // Reset mapped story
   }
 
   const handleProjectUpdated = async (project: Project) => {
     await ProjectService.updateProject(project);
     refreshProjects();
     resetProjectEdit();
+    setCurrentProject(null); // Reset mapped project after update
+    setSelectedStoryId(null); // Reset mapped story
   };
 
   if (!token) {

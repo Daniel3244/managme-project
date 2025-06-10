@@ -8,6 +8,7 @@ interface Props {
   resetEdit: () => void;
 }
 
+// Form for adding or editing a project
 const ProjectForm: React.FC<Props> = ({ onProjectAdded, onProjectUpdated, projectToEdit, resetEdit }) => {
   const [name, setName] = useState(projectToEdit?.name || "");
   const [description, setDescription] = useState(projectToEdit?.description || "");

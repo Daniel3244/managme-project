@@ -9,6 +9,7 @@ interface KanbanColumnProps {
   onTaskClick: (task: Task) => void;
 }
 
+// Kanban column with tasks
 function KanbanColumn({ title, tasks, onTaskClick, users }: KanbanColumnProps & { users: User[] }) {
   return (
     <div className="kanban-column">
@@ -36,19 +37,20 @@ function KanbanColumn({ title, tasks, onTaskClick, users }: KanbanColumnProps & 
   );
 }
 
-// Przyjmij opcjonalny storyId do filtrowania zadań na tablicy kanban
 interface KanbanBoardProps {
   storyId?: string;
   onTaskClick?: (task: Task) => void;
   refreshKanban?: number;
 }
 
+// Main Kanban board with columns
 export default function KanbanBoard({ storyId, onTaskClick, refreshKanban }: KanbanBoardProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
+  // Static user list for demo
   const users: User[] = [
     { id: 1, firstName: "Jan", lastName: "Kowalski", role: "devops" },
     { id: 2, firstName: "Anna", lastName: "Nowak", role: "developer" },
-  ]; // Możesz pobrać z UserService jeśli będzie dynamiczne
+  ];
 
   useEffect(() => {
     TaskApi.getAll().then(all => {
