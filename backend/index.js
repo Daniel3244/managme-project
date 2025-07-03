@@ -8,12 +8,14 @@ app.use(express.json())
 
 // Endpoint logowania
 app.post("/api/login", async (req, res) => {
-  const { username, password, login } = req.body
-  const user = username || login
-  if (user === "admin" && password === "admin") {
-    res.json({ success: true, token: "test-token" })
+  const { username, password, login } = req.body;
+  const userLogin = username || login;
+  // Szukaj użytkownika w kolekcji users
+  const user = await db.collection("users").findOne({ login: userLogin });
+  if (user && user.password === password) {
+    res.json({ success: true, token: "test-token" });
   } else {
-    res.status(401).json({ success: false, message: "Błędny login lub hasło" })
+    res.status(401).json({ success: false, message: "Błędny login lub hasło" });
   }
 })
 

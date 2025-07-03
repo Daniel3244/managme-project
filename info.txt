@@ -1,0 +1,95 @@
+Projekt Kanban Board – informacje do prezentacji
+===============================================
+
+1. Opis projektu
+----------------
+Aplikacja Kanban Board służy do zarządzania zadaniami w ramach projektów i historii użytkownika (user stories). Pozwala na przeglądanie, dodawanie i zarządzanie zadaniami, które są przypisane do konkretnych historii i użytkowników.
+
+2. Technologie użyte w projekcie
+-------------------------------
+- Frontend:
+  - React (TypeScript) – budowa interfejsu użytkownika
+  - Vite – szybki bundler i dev-server
+  - CSS – stylowanie komponentów
+- Backend:
+  - Node.js (miniapi/index.js, backend/index.js) – prosty backend do obsługi danych
+  - Express (jeśli użyty) – framework do API REST
+- Testy:
+  - Cypress – testy end-to-end
+- Inne:
+  - ESLint – sprawdzanie jakości kodu
+  - TypeScript – statyczne typowanie
+
+3. Struktura projektu
+---------------------
+- src/components/ – komponenty Reacta (KanbanBoard, TaskForm, ProjectList, itp.)
+- src/services/ – logika komunikacji z backendem (TaskApi, UserService, itp.)
+- miniapi/, backend/ – backend Node.js
+- cypress/ – testy end-to-end
+- public/ – pliki statyczne
+- App.tsx – główny komponent aplikacji
+
+4. Jak działa aplikacja?
+------------------------
+- KanbanBoard.tsx pobiera zadania z API (TaskApi.getAll()), filtruje je po wybranej historii (storyId) i dzieli na 3 kolumny według statusu: To Do, Doing, Done.
+- Każda kolumna to osobny komponent (KanbanColumn), który wyświetla karty zadań.
+- Zadania mają przypisanych użytkowników, priorytet, czas szacowany itd.
+- Dodawanie/edycja zadań przez TaskForm.tsx.
+- Projekty i historie mają własne listy i formularze.
+- Użytkownicy są na razie statyczni (w kodzie).
+- Testy Cypress sprawdzają główne scenariusze użytkownika.
+
+5. Przykładowe pytania prowadzącego i odpowiedzi
+------------------------------------------------
+1. Jakie są główne komponenty aplikacji i za co odpowiadają?
+   - KanbanBoard – zarządza stanem zadań, renderuje kolumny.
+   - KanbanColumn – renderuje pojedynczą kolumnę z zadaniami.
+   - TaskForm, TaskDetails – dodawanie/edycja i szczegóły zadania.
+   - ProjectList, ProjectForm – zarządzanie projektami.
+   - StoryList, StoryForm – zarządzanie historiami użytkownika.
+2. Jak wygląda przepływ danych w aplikacji?
+   - Komponenty korzystają z hooków (useState, useEffect) do zarządzania stanem. Dane pobierane są z backendu przez serwisy (np. TaskApi).
+3. Jak działa filtrowanie zadań po statusie?
+   - Zadania są filtrowane w KanbanBoard po polu status i przekazywane do odpowiednich kolumn.
+4. Jak wygląda komunikacja frontend-backend?
+   - Przez serwisy (TaskApi.ts), które wysyłają żądania HTTP do backendu.
+5. Jak są przechowywani użytkownicy?
+   - Na razie lista użytkowników jest statyczna (w kodzie), ale można ją rozbudować o backend.
+6. Jak można rozbudować projekt?
+   - Dodać autentykację, dynamiczną listę użytkowników, lepsze zarządzanie projektami, integrację z bazą danych.
+7. Jakie są zalety użycia TypeScript?
+   - Bezpieczeństwo typów, łatwiejsze refaktoryzacje, mniej błędów w czasie runtime.
+8. Jak testujesz aplikację?
+   - Używam Cypress do testów end-to-end.
+9. Jak wygląda obsługa błędów?
+   - (Odpowiedz zgodnie z implementacją – np. wyświetlanie komunikatów, obsługa błędów w promisie).
+10. Jak wygląda zarządzanie stanem?
+    - Stan jest lokalny w komponentach (useState), można rozbudować o Context API lub Redux.
+11. Dlaczego wybrałeś Vite zamiast Create React App?
+    - Vite jest znacznie szybszy, ma lepszy hot-reload i prostszą konfigurację.
+12. Jak można wdrożyć aplikację na produkcję?
+    - Zbudować frontend (vite build), backend uruchomić na serwerze Node.js, połączyć przez API.
+13. Jakie są ograniczenia obecnej wersji?
+    - Brak autentykacji, statyczna lista użytkowników, brak bazy danych.
+14. Jak wyglądałby proces dodania drag&drop do Kanbana?
+    - Można użyć react-beautiful-dnd lub react-dnd, dodać obsługę zmiany statusu przez przeciąganie.
+15. Jak wyglądałby proces dodania bazy danych?
+    - Backend rozbudować o połączenie z bazą (np. MongoDB, PostgreSQL), serwisy na froncie nie zmieniają się.
+16. Jakie są dobre praktyki, które stosowałeś?
+    - Typowanie, podział na małe komponenty, oddzielenie logiki API od widoku, testy E2E.
+17. Jak wyglądałby proces dodania autentykacji?
+    - Backend: endpointy do logowania/rejestracji, JWT. Frontend: formularz logowania, przechowywanie tokena.
+18. Jak wyglądałby proces dodania powiadomień (np. toastów)?
+    - Dodać bibliotekę do powiadomień (np. react-toastify), wywoływać po akcjach (dodanie, błąd).
+19. Jak wyglądałby proces refaktoryzacji do Context API?
+    - Przenieść stan globalny (np. lista zadań, użytkowników) do kontekstu, udostępnić przez provider.
+20. Jak wyglądałby proces dodania testów jednostkowych?
+    - Dodać bibliotekę (np. Jest, React Testing Library), pisać testy do komponentów i serwisów.
+
+6. Co jeszcze warto wiedzieć?
+-----------------------------
+- Stan aplikacji jest zarządzany lokalnie w komponentach (useState, useEffect).
+- Stylowanie jest proste, można je rozbudować (np. dodać framework CSS).
+- Kod jest modularny, łatwo dodać nowe funkcje (np. drag&drop, komentarze do zadań).
+- API jest proste, ale można podpiąć prawdziwą bazę danych.
+- Testy Cypress pozwalają na automatyzację testów E2E.
